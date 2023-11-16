@@ -1,0 +1,45 @@
+#Insert text
+with open('/Users/cexufu/Desktop/pg71888.txt','r', encoding="utf-8") as file:
+    lines = file.readlines()
+    text = " ".join(lines)
+
+import string
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+clean_text = text.translate(text.maketrans(" "," ", string.punctuation)).lower()
+clean_text = "".join([ch for ch in clean_text if ch in string.printable])
+output = clean_text.replace(u"\n"," ")
+
+
+tokens = output.split()
+length = {}
+for i in tokens:
+    length[i] = len(i)
+lengthy = np.array(list(length.values()))
+table = pd.DataFrame(length,index = ['length'])
+heights, bins, _ = plt.hist(lengthy, bins=np.arange(max(lengthy)+0.5))
+plt.xlabel("word length")
+plt.ylabel("frequency")
+plt.title('Word length frequencies')
+
+frequency = {}
+for content in output.split():
+    if content in frequency:
+        frequency[content] += 1
+    else:
+        frequency[content] = 1
+
+#method 2, from collection import Counter
+#frequency = dict(Counter(output.split()))
+
+frequency_sorted = sorted(frequency.items(),key=lambda item: item[1],reverse = True)
+fre = pd.DataFrame(frequency_sorted)
+length_new = dict.fromkeys(list(fre[0]),'default_value')
+for i in list(fre[0]):
+    length_new[i] = length[i]
+lens = pd.DataFrame(length_new,index=['length']).T
+#compare = pd.concat([fre,lens])
+#why the sorted function will add () within the dictionary, how can we delete it?
+#how to merge these two dataframes into one, so that we can compare and make scatter fig
+plt.scatter(list(lens['length']),list(fre[1]))
